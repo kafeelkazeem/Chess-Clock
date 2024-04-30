@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>chess timer</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+   <style>
+     body {
+       background-color: #686e80;
+       overflow: hidden;
+     }
+     #menu{
+       background-color: rgba(0,0,0,0);
+       display: block;
+       position: absolute;
+       border: none;
+       outline: none;
+       top: 7px;
+     }
+     .players{
+       background-color: #808080;
+       display: block;
+       width: 90%;
+       margin: 60px auto;
+       border-radius: 5%;
+       outline: none;
+       border: none;
+       text-shadow: 7px 3px 9px grey;
+       font-size: 85px;
+       text-align: center;
+       box-shadow:  3px 3px 14px 1px #000;
+     }
+     #btn1{
+       transform: rotate(180deg);
+       box-shadow: -3px -3px 14px 1px #000;
+     }
+     #btn2{
+       margin-top: 15px;
+     }
+     #center{
+       display: flex;
+       width: 100%;
+       flex-direction: row;
+       margin-top: -40px;
+     }
+     .center{
+       width: 30%;
+       margin: 0px auto;
+       font-size: 20px;
+       border-radius: 20%;
+       border: 2px groove #808080;
+       background-color:#6c8e80;
+       outline: none;
+     }
+     .center:active{
+       filter: brightness(0.7);
+     }
+     #options{
+       display: flex;
+       flex-direction: column;
+       position: fixed;
+       height: 0px;
+       width: 0px;
+       overflow-x: auto;
+       border-radius: 5px;
+       background-color: rgba(0,0,0,0.4);
+       top: 46px;
+       box-shadow:2px 1px 10px black;
+       transition-duration: 0.3s;
+     }
+     .min{
+       width: 100%;
+       height: 15%;
+       border: none;
+       overflow-y: hidden;
+       background-color: rgba(0,0,0,0);
+       color: silver;
+       font-size: 16px;
+       text-align: left;
+       border-bottom: 1px solid grey;
+       outline: none;
+       margin: 7px 0px;
+     }
+     .min:active{
+       filter: brightness(0.7);
+     }
+     #m:active{
+       color: rgb(44, 20, 91);
+     }
+   </style>
+ </head>
+<body>
+  <button id="menu" onclick=menu()><i class="fa fa-ellipsis-v fa-3x" id="m"></i></button>
+  <button id="btn1" onclick=begin1() class="players">10:00</button>
+  <div id="center">
+    <button id="btn4" class="center" onclick=reset()><i id="i" class="fa fa-refresh fa-2x"></i></button>
+    <button id="btn3" onclick=play() class="center"><i id="play" class="fa fa-play fa-2x"></i></button>
+  </div>
+  <button id="btn2" onclick=begin2() class="players">10:00</button>
+ <div id="options">
+   <button class="min" onclick=setMin(5)>5min</button>
+   <button class="min" onclick=setMin(10)>10min</button>
+   <button class="min" onclick=setMin(15)>15min</button>
+   <button class="min" onclick=setMin(20)>20min</button>
+   <button class="min" onclick=setMin(30)>30min</button>
+   <button class="min" onclick=setMin(40)>40min</button>
+   <button class="min" onclick=setMin(60)>60min</button>
+   <button style="border-bottom: none" class="min" onclick=custom()>Custom</button>
+ </div>
+  <script>
+  /* flappyBird = loadImage('https://i.ibb.co/x7BQ7FB/pngkey-com-pokeball-png-3257134.png')
+    pipe = loadImage('https://i.ibb.co/fYCn3Sx/pngkey-com-flappy-bird-pipe-png-1831473.png')
+    pipetop = loadImage('https://i.ibb.co/QphfTj7/20190709-181618.png')
+}*/
+    var options = document.getElementById("options")
+    var start = document.getElementById("play")
+    var btn1 = document.getElementById("btn1")
+    var btn2 = document.getElementById("btn2")
+    var btn3 = document.getElementById("btn3")
+    var btn4 = document.getElementById("btn4")
+  
+     var click = false
+     var click2 = false
+     var click3 = false
+     var click4 = true
+     var width = 130
+
+     options.style.width = width+"px"
+     
+     var count1 = 0
+     var count2 = 0
+     var sec1
+     var sec2
+     var min1
+     var min2
+     var previousMin = 10
+     
+     function setMin(x){
+       previousMin = x
+       sec1 = 0
+       sec2 = 0 
+       min1 = x 
+       min2 = x
+       document.getElementsByClassName("min").style="none"
+       options.style.height = 0+"px"
+       options.style.border = "none"
+       start.setAttribute("class", "fa fa-play fa-2x")
+       btn2.style = "background-color: grey; color:#000"
+       btn1.style = "background-color: grey; color:#000"
+       count1 = 0
+       count2 = 0
+       click3 = false
+       click2 = false
+       click = false
+     }
+     setMin(10)
+     
+     function custom(){
+       var y = prompt(" Set Min:")
+       var k = parseInt(y)
+       if(Object.is(k, NaN)){
+         alert("Invalid input! Type an integer")
+       }else if(k==0){
+         alert("Min should be greater than 0!")
+       }else{
+         setMin(k)
+       }
+     }
+     
+     function play(){
+       if (click2 == false){
+         start.setAttribute("class", "fa fa-pause fa-2x")
+         if(click3 == false){
+           btn1.style = "background-color: orange; color:#fff"
+           btn2.style = "background-color: grey; color:#000"
+           count1 = 1
+           count2 = 0
+         }else{
+           btn1.style = "background-color: grey; color:#000"
+           btn2.style = "background-color: orange; color:#fff"
+           count1 = 0
+           count2 = 1
+         }
+         click2 = true
+       }else{
+         start.setAttribute("class", "fa fa-play fa-2x")
+         btn2.style = "background-color: grey; color:#000"
+         btn1.style = "background-color: grey; color:#000"
+         count1 = 0
+         count2 = 0
+         click2 = false
+       }
+     }
+     
+     function reset(){
+       if(click4 == true){
+         if(confirm("Reset Timer?")){
+           setMin(previousMin)
+         }else{
+         //
+         }
+       }else{
+         btn1.style="background-color: grey; color: #000"
+         btn2.style="background-color: grey; color: #000"
+         btn3.style.display = "block"
+         document.getElementById("menu").style.display = "block"
+         setMin(previousMin)
+         click2 = false
+         click4 = true
+       }
+     }
+     
+     function begin1(){
+       if(click2==true){
+         btn2.style = "background-color: orange; color:#fff"
+         btn1.style = "background-color: grey; color:#000"
+         count1 = 0
+         count2 = 1
+         click3 = true
+       }
+     }
+     
+     function begin2(){
+       if(click2==true){
+         btn1.style = "background-color: orange; color:#fff"
+         btn2.style = "background-color: grey; color:#000"
+         count1 = 1
+         count2 = 0
+         click3 = false
+       }
+     }
+     
+     function menu(){
+       if(click==false){
+         document.getElementsByClassName("min").style="border-bottom: 1px solid grey"
+         options.style.height = 280+"px"
+         options.style.border = "1px solid rgba(255,255,255,0.5)"
+         click = true
+       }else{
+         document.getElementsByClassName("min").style="none"
+         options.style.height = 0+"px"
+         options.style.border = "none"
+         click = false
+       }
+     }
+     
+     function timeUp(){
+       if(min1<=0 && sec1<=0){
+         count1 = 0
+         count2 = 0
+         btn1.style="background-color: red; color: #fff"
+         btn2.style="background-color: grey; color: #000"
+         btn3.style.display = "none"
+         document.getElementById("menu").style.display = "none"
+         click2 = false
+         click4 = false
+       }else if(min2<=0 && sec2<=0){
+         count1 = 0
+         count2 = 0
+         btn2.style="background-color: red; color: #fff"
+         btn1.style="background-color: grey; color: #000"
+         btn3.style.display = "none"
+         document.getElementById("menu").style.display = "none"
+         click2 = false
+         click4 = false
+       }
+     }
+     
+     var then = Date.now()
+     var now
+     function timer(){
+       now = Date.now()
+       var difference = now - then
+       if(difference > 1000){
+         function pl1(){
+           sec1-=count1
+           if(sec1<0){
+             min1--;sec1=59
+           }
+           if(sec1>9){
+             btn1.innerHTML = `${min1}:${sec1}`
+           }else{
+             btn1.innerHTML = `${min1}:0${sec1}`
+           }
+         }
+         function pl2(){
+           sec2-=count2
+           if(sec2<0){
+             min2--;sec2=59
+           }
+           if(sec2>9){
+             btn2.innerHTML = `${min2}:${sec2}`
+           }else{
+             btn2.innerHTML = `${min2}:0${sec2}`
+           }
+         }
+         pl1()
+         pl2()
+         timeUp()
+         then = now
+       }
+       window.requestAnimationFrame(timer)
+     }
+     timer()
+     
+     function change(){
+       options.style.left = (window.innerWidth-(width+5))+"px"
+       document.getElementById("menu").style.left=(window.innerWidth-27)+"px"
+       const k = ((35/100)*window.innerHeight)
+       const w = ((10/100)*window.innerHeight)
+       document.getElementById("center").style.height = w+"px"
+       btn1.style.height = k+"px"
+       btn2.style.height = k+"px"
+       window.requestAnimationFrame(change)
+     }
+     change()
+  </script>
+</body>
+</html>
